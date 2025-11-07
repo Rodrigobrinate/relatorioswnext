@@ -5,12 +5,11 @@ import '../../../../lib/bigint-patch'; // Importa o patch
 
 const prisma = new PrismaClient();
 
-export async function POST(
+export async function GET(
   request: Request,
   { params }: { params: { deviceId: string } }
 ) {
-const body = await request.json();
-    const { deviceId } = body; //
+  const { deviceId } = params;
 
   if (!deviceId) {
     return NextResponse.json({ error: 'Invalid deviceId' }, { status: 400 });
