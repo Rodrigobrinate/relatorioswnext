@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+generator js {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:a850d1b912eb7f2d9cf6@45.165.244.102:5432/relatorio"
+}
+
+model Device {
+  id                 Int                @id @default(autoincrement())
+  librenms_device_id Int                @unique
+  hostname           String             @unique
+  ip_address         String
+  os                 String?
+  vendor             String?
+  last_polled        DateTime
+  NetworkInterface   NetworkInterface[]
+}
+
+model NetworkInterface {
+  id                 Int                  @id @default(autoincrement())
+  interface_name     String
+  physical_status    String?
+  protocol_status    String?
+  description        String?
+  last_updated       DateTime
+  device_id          Int
+  InterfaceStats     InterfaceStats[]
+  Device             Device               @relation(fields: [device_id], references: [id], onDelete: Cascade)
+  TransceiverModule  TransceiverModule[]
+  TransceiverReading TransceiverReading[]
+
+  @@unique([device_id, interface_name])
+}
+
+model TransceiverModule {
+  id                    Int              @id @default(autoincrement())
+  interface_id          Int
+  timestamp             DateTime         @default(now())
+  transceiver_type      String?
+  connector_type        String?
+  wavelength_nm         String?
+  transfer_distance_m   String?
+  vendor_name           String?
+  vendor_part_number    String?
+  serial_number         String?
+  manufacturing_date    String?
+  temp_high             Float?
+  temp_low              Float?
+  volt_high             Float?
+  volt_low              Float?
+  bias_high             Float?
+  bias_low              Float?
+  rx_power_high         Float?
+  rx_power_low          Float?
+  tx_power_high         Float?
+  tx_power_low          Float?
+  rx_power_high_warning Float?
+  rx_power_low_warning  Float?
+  tx_power_high_warning Float?
+  tx_power_low_warning  Float?
+  NetworkInterface      NetworkInterface @relation(fields: [interface_id], references: [id], onDelete: Cascade)
+
+  @@index([interface_id, timestamp])
+}
+
+model TransceiverReading {
+  id                 Int              @id @default(autoincrement())
+  interface_id       Int
+  timestamp          DateTime         @default(now())
+  transceiver_status String?
+  temperature        Float?
+  voltage            Float?
+  bias_current       Float?
+  rx_power           Float?
+  tx_power           Float?
+  NetworkInterface   NetworkInterface @relation(fields: [interface_id], references: [id], onDelete: Cascade)
+
+  @@index([interface_id, timestamp])
+}
+
+model InterfaceStats {
+  id               Int              @id @default(autoincrement())
+  interface_id     Int
+  timestamp        DateTime         @default(now())
+  in_uti           Float?
+  out_uti          Float?
+  in_errors        BigInt?
+  out_errors       BigInt?
+  NetworkInterface NetworkInterface @relation(fields: [interface_id], references: [id], onDelete: Cascade)
+
+  @@index([interface_id, timestamp])
+}
