@@ -1,59 +1,79 @@
-# 1. Base Stage
-# Usa uma imagem Node.js leve como base para os estágios
+# ==============================================================================
+# 1. BASE STAGE
+# Define uma imagem base leve para reutilização.
+# ==============================================================================
 FROM node:20-alpine AS base
 
-# 2. Dependency Installation Stage (Deps)
-# Otimiza a instalação de dependências
+# ==============================================================================
+# 2. DEPENDENCY INSTALLATION STAGE (deps)
+# Instala as dependências, aproveitando o cache do Docker.
+# ==============================================================================
 FROM base AS deps
+# Pacote necessário para que alguns pacotes Node.js funcionem no Alpine
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
+
+# Copia arquivos de gerenciamento de pacotes
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-# Instala as dependências, usando npm ci se package-lock.json existir
+
+# Instala as dependências de forma determinística
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
   else npm install; \
   fi
 
-# 3. Build Stage
+# ==============================================================================
+# 3. BUILD STAGE
+# Copia o código, gera o cliente Prisma e compila a aplicação.
+# ==============================================================================
 FROM base AS builder
 WORKDIR /app
+
+# Copia as dependências instaladas no estágio 'deps'
 COPY --from=deps /app/node_modules ./node_modules
+# Copia todo o código-fonte (incluindo 'prisma/schema.prisma')
 COPY . .
 
-# Desabilita a telemetria do Next.js durante a compilação
+# Variável de segurança e otimização
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Compila a aplicação. Garanta que seu next.config.js tenha:
-# output: 'standalone'
-# A compilação cria a pasta .next/standalone
+# 🛑 Ação do Prisma para Produção:
+# 1. Gera o cliente Prisma (obrigatório para que o build do Next.js funcione)
+# 2. NÃO inclua 'db push' ou 'migrate deploy' aqui. Isso deve ser feito 
+#    separadamente no seu pipeline de CI/CD ANTES de implantar a nova imagem.
+RUN npx prisma generate
+
+# Compila a aplicação Next.js
+# Isso cria o servidor 'standalone' em .next/standalone
 RUN npm run build
 
-# 4. Production Runner Stage
+# ==============================================================================
+# 4. PRODUCTION RUNNER STAGE
+# A imagem final. Leve, segura e contém apenas os arquivos de execução.
+# ==============================================================================
 FROM base AS runner
 WORKDIR /app
 
-# Define ambiente de produção
+# Define ambiente de produção e desativa a telemetria
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Cria um usuário não-root para segurança
+# Define a porta (padrão Next.js)
+EXPOSE 3000
+
+# Segurança: Cria e usa um usuário não-root ('nextjs')
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
-RUN npx prisma db push
-RUN npx prisma generate
-
-# Copia os arquivos de produção necessários
-# A pasta standalone contém tudo para rodar a aplicação:
-# servidor Node.js, arquivos estáticos e o build do Next.js
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Copia APENAS os artefatos necessários do estágio 'builder'
+# A pasta 'standalone' contém o servidor Node.js e os módulos necessários
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# Copia arquivos estáticos do build
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copia a pasta 'public'
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Porta que o Next.js deve escutar (padrão 3000)
-EXPOSE 3000
-
-# Comando para iniciar a aplicação compilada
+# Inicia o servidor Next.js standalone
 CMD ["node", "server.js"]
