@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
 
-BigInt.prototype.toJSON = function() {
+(BigInt.prototype as any).toJSON = function() {
   return this.toString();
 };
-export async function POST(  request: Request,  { params}: { params: { deviceId: string },}
+export async function POST(  request: Request, 
 ) {
   //const deviceId = params.deviceId;
 const body = await request.json();

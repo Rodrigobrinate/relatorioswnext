@@ -8,7 +8,7 @@ import type {
   InterfaceStats
 
 } from '@prisma/client';
-import type { SimpleDevice } from '../page'; // Importa o tipo da página
+//import type { SimpleDevice } from '../page'; // Importa o tipo da página
 
 // Tipagem para o dado combinado que nossa API retorna
 type InterfaceWithReading = NetworkInterface & {
@@ -21,7 +21,7 @@ type InterfaceWithReading = NetworkInterface & {
 
 // Props que o componente recebe
 type DeviceMonitorProps = {
-  initialDevices: SimpleDevice[];
+  initialDevices: any[];
 };
 
 export default function DeviceMonitor({ initialDevices }: DeviceMonitorProps) {

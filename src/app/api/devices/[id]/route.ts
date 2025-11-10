@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,
-  { params }: { params: { deviceId: string } }
+  { params }: { params: any }
 ) {
   const { deviceId } = params;
 

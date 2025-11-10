@@ -1,4 +1,3 @@
-// app/api/dashboards/error-rate/route.ts
 import { NextResponse } from 'next/server';
 import { PrismaClient, InterfaceStats } from '@prisma/client';
 import '../../../../lib/bigint-patch';
@@ -15,10 +14,13 @@ type ErrorRateData = {
   outErrorRate: number;
   totalErrorRate: number;
   lastReadTimestamp: Date;
-  totalErrorCount: number; // <-- ADICIONADO
+  totalErrorCount: number;
 };
 
-// --- Função calculateAverageRate (sem alterações) ---
+/**
+ * Calculates the average error rate based on the change in cumulative error counters.
+ * Fix: Replaced BigInt literal '0n' with 'BigInt(0)' for wider JS compatibility.
+ */
 function calculateAverageRate(
   stats: Pick<InterfaceStats, 'in_errors' | 'out_errors' | 'timestamp'>[]
 ): { avgInRate: number; avgOutRate: number } {
@@ -32,14 +34,19 @@ function calculateAverageRate(
   for (let i = 1; i < sortedStats.length; i++) {
     const current = sortedStats[i];
     const previous = sortedStats[i - 1];
-    const deltaIn = (current.in_errors ?? 0n) - (previous.in_errors ?? 0n);
-    const deltaOut = (current.out_errors ?? 0n) - (previous.out_errors ?? 0n);
-    if (deltaIn > 0n) deltasIn.push(deltaIn);
-    if (deltaOut > 0n) deltasOut.push(deltaOut);
+
+    // Using BigInt(0) instead of 0n
+    const deltaIn = (current.in_errors ?? BigInt(0)) - (previous.in_errors ?? BigInt(0));
+    const deltaOut = (current.out_errors ?? BigInt(0)) - (previous.out_errors ?? BigInt(0));
+
+    // Using BigInt(0) instead of 0n
+    if (deltaIn > BigInt(0)) deltasIn.push(deltaIn);
+    if (deltaOut > BigInt(0)) deltasOut.push(deltaOut);
   }
 
-  const sumIn = deltasIn.reduce((acc, val) => acc + val, 0n);
-  const sumOut = deltasOut.reduce((acc, val) => acc + val, 0n);
+  // Using BigInt(0) instead of 0n
+  const sumIn = deltasIn.reduce((acc, val) => acc + val, BigInt(0));
+  const sumOut = deltasOut.reduce((acc, val) => acc + val, BigInt(0));
   const avgInRate = deltasIn.length > 0 ? Number(sumIn) / deltasIn.length : 0;
   const avgOutRate = deltasOut.length > 0 ? Number(sumOut) / deltasOut.length : 0;
   
@@ -90,7 +97,8 @@ export async function GET() {
 
         // Pega o contador total da leitura mais RECENTE (stats[0])
         const latestStat = stats[0];
-        const totalErrorCount = Number(latestStat.in_errors ?? 0n) + Number(latestStat.out_errors ?? 0n);
+        // Using BigInt(0) instead of 0n
+        const totalErrorCount = Number(latestStat.in_errors ?? BigInt(0)) + Number(latestStat.out_errors ?? BigInt(0));
 
         return {
           interfaceId: iface.id,
@@ -102,7 +110,7 @@ export async function GET() {
           outErrorRate: avgOutRate,
           totalErrorRate: totalAvgRate,
           lastReadTimestamp: latestStat.timestamp,
-          totalErrorCount: totalErrorCount, // <-- ADICIONADO
+          totalErrorCount: totalErrorCount,
         };
       })
       .filter((rate): rate is ErrorRateData => rate !== null);

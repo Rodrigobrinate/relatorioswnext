@@ -1,6 +1,6 @@
 // app/api/interfaces/route.ts
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // Importa a instância ÚNICA
+import  prisma  from '../../../lib/prisma'; // Importa a instância ÚNICA
 
 export async function GET(request: Request) {
   try {

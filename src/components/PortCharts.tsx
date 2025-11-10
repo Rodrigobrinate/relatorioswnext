@@ -41,19 +41,19 @@ const formatTooltipLabel = (label: string) => {
 
 // Converte o valor para número (necessário para as linhas de referência)
 const parseValue = (val: number | null | undefined) => {
-  if (val === null || val === undefined) return null;
+  if (val === null || val === undefined) return undefined;
   return Number(val);
 };
 
 // --- COMPONENTE DO TOOLTIP PERSONALIZADO ---
 // Este componente cria aquela "caixa" de informações ao passar o mouse
-const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     // 'label' é o valor do eixo X (timestamp)
     const formattedLabel = formatTooltipLabel(label);
 
     // 'payload' é um array com os dados de cada linha/área
-    const data = payload.reduce((acc, item) => {
+    const data = payload.reduce((acc: any, item: any) => {
       // item.dataKey é o nome da 'dataKey' (ex: 'rx_power')
       // item.value é o valor
       // item.color é a cor que definimos

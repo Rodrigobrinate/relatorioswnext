@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 export async function POST(
   request: Request,
-  { params }: { params: { interfaceId: string } }
+  
 ) {
 
     const body = await request.json();
