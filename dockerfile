@@ -42,6 +42,9 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
+RUN npx prisma db push
+RUN npx prisma generate
+
 # Copia os arquivos de produção necessários
 # A pasta standalone contém tudo para rodar a aplicação:
 # servidor Node.js, arquivos estáticos e o build do Next.js
