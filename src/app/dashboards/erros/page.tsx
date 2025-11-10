@@ -170,7 +170,7 @@ export default function ErrorDashboardPage() {
 
                   {/* --- ESTADO HOVER (DETALHES) --- */}
                   <div 
-                    className="absolute inset-0 flex flex-col justify-center text-left space-y-3
+                    className="absolute mx-2 inset-0 flex flex-col justify-center text-left space-y-3
                                transition-all duration-300 ease-in-out
                                opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100"
                   >
