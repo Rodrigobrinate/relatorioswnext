@@ -70,7 +70,7 @@ export default function ErrorDashboardPage() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 md:p-8">
       {/* Cabeçalho (sem alterações) */}
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between sm:items-center gap-6 mb-10">
+      <div className=" mx-auto flex flex-col sm:flex-row justify-between sm:items-center gap-6 mb-10">
         <div>
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">
             Top 20: Taxa de Erros
@@ -104,7 +104,7 @@ export default function ErrorDashboardPage() {
       )}
 
       {/* Grid de Cards (COM AS ANIMAÇÕES) */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         
         {/* AnimatePresence para cards que saem da lista */}
         <AnimatePresence>
@@ -155,7 +155,7 @@ export default function ErrorDashboardPage() {
                     <p className="text-sm font-medium text-red-600 dark:text-red-400">
                       Média de Erros
                     </p>
-                    <div className="text-7xl font-extrabold text-red-600 dark:text-red-300 tracking-tighter my-2">
+                    <div className="text-4xl font-extrabold text-red-600 dark:text-red-300 tracking-tighter my-2">
                       {/* NÚMERO ANIMADO (1) */}
                       <CountUp
                         end={item.totalErrorRate}
