@@ -5,17 +5,30 @@ import '../../../../lib/bigint-patch'; // Importa o patch
 
 const prisma = new PrismaClient();
 
-export async function GET(
+export async function POST(
   request: Request,
-  { params }: { params: any }
 ) {
-  const { deviceId } = params;
+  const body = await request.json();
+  
+  // --- PARÂMETROS ATUALIZADOS ---
+  // Agora recebemos deviceId, startDate, e endDate do corpo
+  const { deviceId, startDate, endDate } = body;
 
-  if (!deviceId) {
-    return NextResponse.json({ error: 'Invalid deviceId' }, { status: 400 });
+  if (!deviceId || !startDate || !endDate) {
+    return NextResponse.json({ error: 'Missing required parameters (deviceId, startDate, endDate)' }, { status: 400 });
   }
 
   try {
+    // --- CONSULTA DO PRISMA MODIFICADA ---
+    
+    // Criamos o filtro de tempo
+    const timeFilter = {
+      timestamp: {
+        gte: new Date(startDate), // 'gte' = Greater than or equal (Maior ou igual)
+        lte: new Date(endDate),   // 'lte' = Less than or equal (Menor ou igual)
+      }
+    };
+
     const deviceData = await prisma.device.findUnique({
       where: {
         id: parseInt(deviceId),
@@ -28,19 +41,22 @@ export async function GET(
           include: {
             // Histórico de leituras (TX/RX, Temp, etc.)
             TransceiverReading: {
+              where: timeFilter,     // <-- APLICADO O FILTRO
               orderBy: {
-                timestamp: 'desc',
+                timestamp: 'asc',  // <-- MUDADO DE 'desc'
               },
-              take: 288, // Ex: Pega as últimas 288 leituras (24h se for a cada 5 min)
+              // 'take' foi removido para pegar TODOS os dados no intervalo
             },
             // Histórico de estatísticas (Erros)
             InterfaceStats: {
+              where: timeFilter,     // <-- APLICADO O FILTRO
               orderBy: {
-                timestamp: 'desc',
+                timestamp: 'asc',  // <-- MUDADO DE 'desc'
               },
-              take: 288,
+              // 'take' foi removido
             },
-            // Informações do módulo (para limites de alarme)
+            // Informações do módulo (NÃO MUDOU)
+            // Continua pegando o 1 mais recente para os alarmes
             TransceiverModule: {
               orderBy: {
                 timestamp: 'desc',

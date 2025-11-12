@@ -10,6 +10,7 @@ const navLinks = [
   { name: 'Top 20 Erros', href: '/dashboards/erros' },
   { name: 'grafico de erros', href: '/relatorios/erros'},
   { name: 'Relatório de Potência', href: '/relatorios/potencia' },
+  {name: 'porcentágem de tráfego', href: '/top-bandwidth'}
 ];
 
 export default function Sidebar() {
