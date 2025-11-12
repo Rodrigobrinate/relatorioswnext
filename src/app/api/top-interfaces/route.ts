@@ -14,6 +14,7 @@ export type TopInterfaceData = {
   out_uti: number | null;
   max_uti: number;
   last_stat_time: Date;
+  description: string | null;
 };
 
 export async function GET() {
@@ -44,7 +45,8 @@ export async function GET() {
         ni.id as "interfaceId",
         ni.interface_name,
         d.hostname,
-        d.vendor
+        d.vendor,
+        ni.description
       FROM LatestStats ls
       JOIN "NetworkInterface" ni ON ls.interface_id = ni.id
       JOIN "Device" d ON ni.device_id = d.id
