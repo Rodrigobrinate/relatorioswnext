@@ -71,8 +71,8 @@ const formatChartData = (interfaceData: InterfaceWithDetails) => {
   );
 
   for (let i = 1; i < sortedStats.length; i++) {
-    const curr = sortedStats[i];
-    const prev = sortedStats[i - 1];
+    const curr = sortedStats[i] as any
+    const prev = sortedStats[i - 1] as any
 
     const currTime = new Date(curr.timestamp).getTime();
     const prevTime = new Date(prev.timestamp).getTime();
