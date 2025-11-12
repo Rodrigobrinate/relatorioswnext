@@ -77,6 +77,7 @@ const formatChartData = (interfaceData: InterfaceWithDetails) => {
     const currTime = new Date(curr.timestamp).getTime();
     const prevTime = new Date(prev.timestamp).getTime();
     const timeDeltaSeconds = (currTime - prevTime) / 1000;
+    
 
     if (timeDeltaSeconds <= 0) continue;
 
