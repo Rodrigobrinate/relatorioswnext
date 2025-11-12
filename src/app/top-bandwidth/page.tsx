@@ -5,6 +5,7 @@ import useSWR from 'swr';
 import { Wifi, ArrowDown, ArrowUp, Loader2, AlertTriangle } from 'lucide-react';
 // Importa o tipo de dado que nossa API retorna
 import type { TopInterfaceData } from '../api/top-interfaces/route'; 
+import Link from 'next/link';
 
 // Função helper para o SWR buscar os dados
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -118,8 +119,16 @@ export default function TopBandwidthPage() {
 
       {data && (
         <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {data.map((iface) => (
-            <InterfaceCard key={iface.interfaceId} data={iface} />
+          {data?.map((iface) => (
+            <Link
+              key={iface.interfaceId}
+              // Passamos o hostname e nome da interface pela URL para usar como título na próxima página
+              href={`/interface/${iface.interfaceId}?hostname=${encodeURIComponent(iface.hostname)}&iface=${encodeURIComponent(iface.interface_name)}`}
+              target="_blank" // Abre em nova aba
+              rel="noopener noreferrer"
+              className="block rounded-lg transition-shadow hover:shadow-xl" // Faz o link se comportar como um bloco
+            >
+            <InterfaceCard key={iface.interfaceId} data={iface} /></Link>
           ))}
         </ul>
       )}
