@@ -41,4 +41,6 @@ export default async function Home() {
       <DeviceMonitor initialDevices={initialDevices} />
     </main>
   );
-}   
+}  
+
+
