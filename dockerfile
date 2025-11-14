@@ -46,7 +46,7 @@ RUN npx prisma generate
 
 # Compila a aplicação Next.js
 # Isso cria o servidor 'standalone' em .next/standalone
-RUN npm run build
+RUN nice -n 19 npm run build
 
 # ==============================================================================
 # 4. PRODUCTION RUNNER STAGE
