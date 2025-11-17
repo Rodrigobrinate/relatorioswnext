@@ -103,6 +103,7 @@ export async function GET() {
             ) as rn
           FROM "InterfaceStats"
           WHERE "interface_id" IN (${Prisma.join(interfaceIds)})
+          AND "timestamp" > (NOW() - INTERVAL '3 days')
         )
         SELECT
           "interface_id",
